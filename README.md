@@ -1,2 +1,5 @@
-# oop-patterns-js
-OOP Patterns
+# OOP Patterns
+
+Links to patterns in this repository:
+
+- [Observer](patterns/observer.html)

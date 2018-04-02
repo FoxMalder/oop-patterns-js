@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Observer Pattern</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .big-font {
+      font-size: 10em;
+      line-height: 1;
+    }
+
+    .big-font > div {
+      min-height: 100vh;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stats {
+      font-size: 1.2em;
+    }
+
+    /* Стили для 4 блоков со статистикой */
+
+    #statsTopLeft {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+    }
+
+    #statsTopRight {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+    }
+
+    #statsBottomLeft {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+    }
+
+    #statsBottomRight {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Разметка для имитации контента -->
+  <div class="big-font">
+    <div>C</div>
+    <div>o</div>
+    <div>n</div>
+    <div>t</div>
+    <div>e</div>
+    <div>n</div>
+    <div>t</div>
+    <div>G</div>
+    <div>o</div>
+    <div>e</div>
+    <div>s</div>
+    <div>H</div>
+    <div>e</div>
+    <div>r</div>
+    <div>e</div>
+  </div>
+
+  <!-- Блоки со статистикой -->
+  <div class="stats">
+    <div id="statsTopLeft">
+      <div>scroll position: <span class="scrollPosition"></span></div>
+      <div>scroll progress: <span class="scrollProgress"></span></div>
+    </div>
+
+    <div id="statsTopRight">
+      <div>scroll position: <span class="scrollPosition"></span></div>
+      <div>scroll progress: <span class="scrollProgress"></span></div>
+    </div>
+
+    <div id="statsBottomLeft">
+      <div>scroll position: <span class="scrollPosition"></span></div>
+      <div>scroll progress: <span class="scrollProgress"></span></div>
+    </div>
+
+    <div id="statsBottomRight">
+      <div>scroll position: <span class="scrollPosition"></span></div>
+      <div>scroll progress: <span class="scrollProgress"></span></div>
+    </div>
+  </div>
+
+  <script>
+    const statsBlocks = ['statsTopLeft', 'statsTopRight', 'statsBottomLeft', 'statsBottomRight'];
+
+    // "Интерфейс" субъекта
+    class Subject {
+      addSubscriber() {
+        throw new Error('Not implemented.');
+      }
+
+      removeSubscriber() {
+        throw new Error('Not implemented.');
+      }
+
+      notifySubscribers() {
+        throw new Error('Not implemented.');
+      }
+    }
+
+    // Наш субъект, который будет слушать события onScroll и оповещать подписчиков
+    class ScrollSubject extends Subject {
+      constructor() {
+        super();
+
+        this.scrollPosition = window.pageYOffset;
+        this.subscribers = {};
+
+        window.addEventListener('scroll', () => {
+          this.scrollPosition = window.pageYOffset;
+
+          this.notifySubscribers(this.scrollPosition);
+        });
+      }
+
+      getScrollPosition() {
+        return this.scrollPosition;
+      }
+
+      // Реализация добавления подписчика
+      addSubscriber(subscriber) {
+        this.subscribers[subscriber.id] = subscriber;
+      }
+
+      // Реализация удаления подписчика
+      removeSubscriber(id) {
+        delete this.subscribers[id];
+      }
+
+      // Реализация уведомления подписчика
+      notifySubscribers(progress) {
+        Object.keys(this.subscribers).map(key => this.subscribers[key].update(progress));
+      }
+    }
+
+    const pageScrollListener = new ScrollSubject();
+
+    // "Интерфейс" наблюдателя
+    class Observer {
+      update() {
+        throw new Error('Not implemented.');
+      }
+    }
+
+    // Наш абстрактный наблюдатель, который будет слушать события ScrollSubject
+    class ScrollObserver extends Observer {
+      constructor(query, scrollListener = pageScrollListener) {
+        super();
+
+        this.id = query;
+        this.element = document.querySelector(query);
+        this.value = this.compute(scrollListener.getScrollPosition());
+
+        scrollListener.addSubscriber(this);
+
+        this.render();
+      }
+
+      render() {
+        this.element.innerHTML = this.value;
+      }
+
+      update(progress) {
+        this.value = this.compute(progress);
+
+        this.render();
+      }
+
+      compute() {
+        throw new Error('Not implemented.');
+      }
+    }
+
+    // Класс наблюдателей, которым необходимо пиксельное значение текущего скролла
+    class ScrollPosition extends ScrollObserver {
+      compute(value) {
+        return value;
+      }
+    }
+
+    // Привязываем наблюдатель ScrollPosition к каждому блоку .scrollPosition
+    statsBlocks.forEach(block => new ScrollPosition(`#${block} .scrollPosition`));
+
+    // Класс наблюдателей, которым необходимо процентное значение текущего скролла
+    class ScrollProgress extends ScrollObserver {
+      compute(value) {
+        const percents = Math.round(value / (document.body.clientHeight - window.innerHeight) * 100);
+
+        return `${percents}%`;
+      }
+    }
+
+    // Привязываем наблюдатель ScrollProgress к каждому блоку .scrollProgress
+    statsBlocks.forEach(block => new ScrollProgress(`#${block} .scrollProgress`));
+  </script>
+</body>
+</html>
