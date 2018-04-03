@@ -10,6 +10,8 @@
     html, body {
       margin: 0;
       padding: 0;
+
+      font-family: Arial, Helvetica, sans-serif;
     }
 
     .big-font {
@@ -25,34 +27,22 @@
       justify-content: center;
     }
 
-    .stats {
-      font-size: 1.2em;
-    }
-
-    /* Стили для 4 блоков со статистикой */
-
-    #statsTopLeft {
+    #stats {
       position: fixed;
       top: 20px;
       left: 20px;
     }
 
-    #statsTopRight {
+    .scroll {
       position: fixed;
-      top: 20px;
-      right: 20px;
-    }
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
 
-    #statsBottomLeft {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-    }
+      background-color: #ff6363;
 
-    #statsBottomRight {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
+      transition: width 0.1s;
     }
   </style>
 </head>
@@ -77,32 +67,16 @@
     <div>e</div>
   </div>
 
-  <!-- Блоки со статистикой -->
-  <div class="stats">
-    <div id="statsTopLeft">
-      <div>scroll position: <span class="scrollPosition"></span></div>
-      <div>scroll progress: <span class="scrollProgress"></span></div>
-    </div>
-
-    <div id="statsTopRight">
-      <div>scroll position: <span class="scrollPosition"></span></div>
-      <div>scroll progress: <span class="scrollProgress"></span></div>
-    </div>
-
-    <div id="statsBottomLeft">
-      <div>scroll position: <span class="scrollPosition"></span></div>
-      <div>scroll progress: <span class="scrollProgress"></span></div>
-    </div>
-
-    <div id="statsBottomRight">
-      <div>scroll position: <span class="scrollPosition"></span></div>
-      <div>scroll progress: <span class="scrollProgress"></span></div>
-    </div>
+  <!-- Блок со статистикой -->
+  <div id="stats">
+    <div>Scroll Position: <span class="scrollPosition"></span></div>
+    <div>Scroll Progress: <span class="scrollProgress"></span></div>
   </div>
 
-  <script>
-    const statsBlocks = ['statsTopLeft', 'statsTopRight', 'statsBottomLeft', 'statsBottomRight'];
+  <!-- Индикатор скролла -->
+  <div class="scroll"></div>
 
+  <script>
     // "Интерфейс" субъекта
     class Subject {
       addSubscriber() {
@@ -194,12 +168,12 @@
     // Класс наблюдателей, которым необходимо пиксельное значение текущего скролла
     class ScrollPosition extends ScrollObserver {
       compute(value) {
-        return value;
+        return `${value}px`;
       }
     }
 
-    // Привязываем наблюдатель ScrollPosition к каждому блоку .scrollPosition
-    statsBlocks.forEach(block => new ScrollPosition(`#${block} .scrollPosition`));
+    // Привязываем наблюдатель ScrollPosition к блоку .scrollPosition
+    new ScrollPosition('#stats .scrollPosition');
 
     // Класс наблюдателей, которым необходимо процентное значение текущего скролла
     class ScrollProgress extends ScrollObserver {
@@ -210,8 +184,18 @@
       }
     }
 
-    // Привязываем наблюдатель ScrollProgress к каждому блоку .scrollProgress
-    statsBlocks.forEach(block => new ScrollProgress(`#${block} .scrollProgress`));
+    // Привязываем наблюдатель ScrollProgress к блоку .scrollProgress
+    new ScrollProgress('#stats .scrollProgress');
+
+    // Класс наблюдателей, которым необходимо процентное значение текущего скролла и своя функция рендеринга
+    class ScrollViewProgress extends ScrollProgress {
+      render() {
+        this.element.style.width = this.value;
+      }
+    }
+
+    // Привязываем наблюдатель ScrollViewProgress к блоку .scrollProgress
+    new ScrollViewProgress('.scroll');
   </script>
 </body>
 </html>
