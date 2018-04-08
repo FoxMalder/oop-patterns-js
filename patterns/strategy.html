@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Strategy Pattern</title>
+
+    <style>
+        html {
+            font-family: Arial, Helvetica, sans-serif;
+
+            line-height: 1.4;
+        }
+
+        .texts {
+            margin: 0 auto;
+            padding-top: 40px;
+
+            max-width: 800px;
+
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="texts">
+        <p class="yandex">
+            Encapsulation means that the <a href="#">internal</a> representation of an object is generally hidden from <a href="#">view</a> outside of the object’s <a href="#">definition</a>. Typically, only the object’s own methods can directly inspect or manipulate its fields.
+        </p>
+
+        <p class="google">
+            Encapsulation is the hiding of data implementation by restricting <a href="#">access</a> to accessors and <a href="#">mutators</a>.
+        </p>
+
+        <p class="all">
+            An accessor is a method that is used to ask an <a href="#">object</a> about itself. In OOP, these are usually in the form of <a href="#">properties</a>, which have a get method, which is an accessor method. However, accessor methods are not <a href="#">restricted</a> to properties and can be any public method that gives information about the state of the object.
+        </p>
+    </div>
+
+    <script>
+        const logYandexMetrika = () => alert('Logged to Yandex Metrika');
+        const logGoogleAnalitics = () => alert('Logged to Google Analytics');
+        const logAll = () => {
+            logYandexMetrika();
+            logGoogleAnalitics();
+        }
+
+        class LinkStore {
+            constructor(selector, clickHandler) {
+                this.clickCallback = clickHandler;
+                this.links = document.querySelectorAll(`.${selector} a`);
+
+                this.links.forEach(link => link.addEventListener('click', this.clickCallback));
+            }
+        }
+
+        new LinkStore('yandex', logYandexMetrika);
+        new LinkStore('google', logGoogleAnalitics);
+        new LinkStore('all', logAll);
+    </script>
+</body>
+
+</html>
