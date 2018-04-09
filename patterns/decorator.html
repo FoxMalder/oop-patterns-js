@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Decorator Pattern</title>
+
+    <style>
+        body {
+            margin: 0 auto;
+            max-width: 600px;
+
+            font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+        }
+
+        .menu {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .jams {
+            flex-grow: 1;
+        }
+
+        .jams-list {
+            margin: 0;
+            padding: 0;
+
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+
+            list-style: none;
+        }
+
+        .jams-list li {
+            margin-bottom: 12px;
+            padding: 5px 12px;
+
+            background-color: #efefef;
+
+            border-radius: 3px;
+        }
+
+        .order {
+            flex-grow: 1;
+        }
+
+        .order-list {
+            margin: 0 0 20px;
+            padding: 0;
+
+            list-style: none;
+        }
+
+        .order-list li {
+            margin-bottom: 8px;
+        }
+
+        .order-list li::before {
+            content: '- ';
+        }
+
+        .final-price {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Мороженое с 3 шариками</h1>
+
+    <div class="menu">
+        <div class="jams">
+            <h3 class="jams-header">Выбор джемов</h3>
+
+            <ul class="jams-list">
+                <li data-type="strawberry">Клубничный 1$</li>
+                <li data-type="chocolate">Шоколадный 2$</li>
+                <li data-type="caramel">Карамельный 3$</li>
+                <li data-type="cherry">Вишневый 4$</li>
+                <li data-type="watermelon">Арбузный 5$</li>
+            </ul>
+        </div>
+
+        <div class="order">
+            <h3 class="order-header">Итоговый заказ</h3>
+
+            <ul class="order-list">
+                <li>3 шарика мороженого 10$</li>
+            </ul>
+
+            <div class="order-price">
+                Итоговая цена: <span class="final-price">10$</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class Icecream {
+            constructor() {
+                this.icecreamPrice = 10;
+            }
+
+            get price() {
+                return this.icecreamPrice;
+            }
+
+            set price(value) {
+                this.icecreamPrice = value;
+            }
+        }
+
+        class JamDecorator extends Icecream {
+            constructor(icecream) {
+                super(icecream);
+
+                this.icecream = icecream;
+                this.jamPrice = null;
+            }
+
+            get price() {
+                return this.getJamPrice() + this.icecream.price;
+            }
+        }
+
+        class StrawberryJam extends JamDecorator {
+            getJamPrice() {
+                return 1;
+            }
+        }
+
+        class ChocolateJam extends JamDecorator {
+            getJamPrice() {
+                return 2;
+            }
+        }
+
+        class CaramelJam extends JamDecorator {
+            getJamPrice() {
+                return 3;
+            }
+        }
+
+        class CherryJam extends JamDecorator {
+            getJamPrice() {
+                return 4;
+            }
+        }
+
+        class WatermelonJam extends JamDecorator {
+            getJamPrice() {
+                return 5;
+            }
+        }
+
+        let icecream = new Icecream();
+
+        function getJam(name) {
+            switch (name) {
+                case 'strawberry':
+                    return new StrawberryJam(icecream);
+
+                case 'chocolate':
+                    return new ChocolateJam(icecream);
+
+                case 'caramel':
+                    return new CaramelJam(icecream);
+
+                case 'cherry':
+                    return new CherryJam(icecream);
+
+                case 'watermelon':
+                    return new WatermelonJam(icecream);
+
+                default:
+                    return icecream;
+            }
+        }
+
+        const menuList = document.querySelectorAll('.jams-list li');
+
+        menuList.forEach(menuItem => menuItem.addEventListener('click', () => {
+            icecream = getJam(menuItem.dataset.type);
+
+            // rendering
+            document.querySelector('.final-price').innerHTML = `${icecream.price}$`;
+
+            const newLi = document.createElement('li');
+            newLi.innerHTML = menuItem.innerHTML;
+
+            document.querySelector('.order-list').appendChild(newLi);
+        }));
+    </script>
+</body>
+</html>
